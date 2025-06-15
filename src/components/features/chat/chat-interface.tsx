@@ -4,7 +4,7 @@ import posthog from "posthog-js";
 import { useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { I18nKey } from "#/i18n/declaration";
-import { convertImageToBase64 } from "#/utils/convert-image-to-base-64";
+import { convertImageToBase64, extractBase64FromDataUrl } from "#/utils/convert-image-to-base-64";
 import { TrajectoryActions } from "../trajectory/trajectory-actions";
 import { createChatMessage } from "#/services/chat-service";
 import { InteractiveChatBox } from "./interactive-chat-box";
@@ -66,7 +66,15 @@ export function ChatInterface() {
 
   const events = parsedEvents.filter(shouldRenderEvent);
 
-  const handleSendMessage = async (content: string, files: File[]) => {
+  const handleSendMessage = async (
+    content: string, 
+    files: File[], 
+    novelModeInfo?: {
+      isNovelMode: boolean;
+      originalPrompt?: string;
+      templateUsed?: string;
+    }
+  ) => {
     if (events.length === 0) {
       posthog.capture("initial_query_submitted", {
         entry_point: getEntryPoint(
@@ -83,10 +91,19 @@ export function ChatInterface() {
       });
     }
     const promises = files.map((file) => convertImageToBase64(file));
-    const imageUrls = await Promise.all(promises);
+    const dataUrls = await Promise.all(promises);
+    // Extract pure base64 for API calls
+    const imageUrls = dataUrls.map(extractBase64FromDataUrl);
 
     const timestamp = new Date().toISOString();
-    send(createChatMessage(content, imageUrls, timestamp));
+    send(createChatMessage(
+      content, 
+      imageUrls, 
+      timestamp,
+      novelModeInfo?.isNovelMode,
+      novelModeInfo?.originalPrompt,
+      novelModeInfo?.templateUsed
+    ));
     setOptimisticUserMessage(content);
     setMessageToSend(null);
   };
