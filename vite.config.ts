@@ -35,19 +35,8 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: "build",
       sourcemap: mode === "development",
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            vendor: ["react", "react-dom"],
-            router: ["react-router"],
-            ui: ["@heroui/react"],
-            editor: ["@monaco-editor/react", "monaco-editor"],
-          },
-        },
-      },
     },
     define: {
-      // Ensure environment variables are available at build time
       __VITE_BACKEND_HOST__: JSON.stringify(env.VITE_BACKEND_HOST),
       __VITE_USE_TLS__: JSON.stringify(env.VITE_USE_TLS),
     },
@@ -72,7 +61,6 @@ export default defineConfig(({ mode }) => {
           ws: true,
           changeOrigin: true,
           secure: !INSECURE_SKIP_VERIFY,
-          // rewriteWsOrigin: true,
         },
       },
       watch: {
