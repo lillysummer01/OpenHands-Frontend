@@ -20,11 +20,5 @@
         }
       ]
     }
-  ],
-  "env": {
-    "VITE_BACKEND_HOST": "@backend_host",
-    "VITE_USE_TLS": "@use_tls",
-    "VITE_FRONTEND_PORT": "3001",
-    "VITE_MOCK_API": "@mock_api"
-  }
+  ]
 }
